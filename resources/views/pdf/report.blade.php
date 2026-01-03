@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Dein Nervensystem Kompass</title>
+    <title>{{ $title }}</title>
     <style>
         @page { margin: 0; }
         body {
@@ -87,8 +87,10 @@
             <div style="margin-bottom: 20px;">
                 <img src="{{ $logo }}" style="max-height: 80px; width: auto;">
             </div>
+            <!-- Optional: Show title below logo if desired, or just replace logic -->
+            <div class="title" style="font-size: 18px;">{{ $title }}</div>
         @else
-            <div class="title" style="font-size: 18px;">Nervensystem Kompass</div>
+            <div class="title" style="font-size: 18px;">{{ $title }}</div>
         @endif
         <div class="subtitle">Persönliche Analyse für {{ $email }}</div>
     </div>

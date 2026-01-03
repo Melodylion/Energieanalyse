@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nervensystem-Kompass | Sophie Philipp</title>
+    <title>{{ isset($quiz) ? $quiz->title : 'Nervensystem-Kompass' }} | Sophie Philipp</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,7 +66,15 @@
 <body class="font-sans antialiased min-h-screen flex flex-col">
     <header class="py-12 text-center">
         <img src="{{ asset('Logo_Final_Solo.png') }}" class="h-32 mx-auto mb-6 w-auto" alt="Sophie Philipp Logo">
-        <h1 class="font-serif text-3xl text-gold tracking-widest uppercase">Nervensystem Kompass</h1>
+        <h1 class="font-serif text-3xl text-gold tracking-widest uppercase">
+            @if(request()->is('admin*'))
+                Energieanalyse Dashboard
+            @elseif(isset($quiz))
+                {{ $quiz->title }}
+            @else
+                Nervensystem Kompass
+            @endif
+        </h1>
         <p class="text-sm text-anthracite mt-2 uppercase tracking-widest">by Sophie Philipp</p>
     </header>
 

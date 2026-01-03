@@ -4,6 +4,26 @@
 <div class="max-w-7xl mx-auto px-4 py-8">
     <h1 class="text-3xl font-serif text-anthracite mb-8">Admin Dashboard</h1>
 
+    <!-- Actions Toolbar -->
+    <div class="mb-8 flex justify-between items-center">
+        <div class="flex gap-4">
+            <a href="{{ route('admin.quizzes.index') }}" class="bg-anthracite text-white px-6 py-2 rounded-lg hover:bg-gold transition-colors text-sm uppercase tracking-widest">
+                CMS / Quiz
+            </a>
+            <a href="{{ route('admin.users.index') }}" class="bg-white border border-gray-300 text-anthracite px-4 py-2 rounded-lg hover:border-gold hover:text-gold transition-colors text-sm uppercase tracking-widest">
+                Admins
+            </a>
+            <a href="{{ route('admin.clear-cache') }}" class="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors text-xs font-bold uppercase tracking-wide flex items-center">
+                Cache Leeren
+            </a>
+        </div>
+        @if(session('success'))
+            <div class="bg-green-100 text-green-800 px-4 py-2 rounded text-sm font-bold animate-pulse">
+                {{ session('success') }}
+            </div>
+        @endif
+    </div>
+
     <div class="bg-white shadow rounded-lg overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -14,6 +34,7 @@
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marketing</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kontakt?</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tiefster Wert</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aktion</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -50,6 +71,13 @@
                                     <span class="ml-2 font-medium text-anthracite">
                                         {{ ucfirst(str_replace('_', ' ', $assessment->lowest_category_key)) }}
                                     </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <form method="POST" action="{{ route('admin.respondents.destroy', $respondent) }}" onsubmit="return confirm('Wirklich löschen?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-400 hover:text-red-900 font-bold hover:underline">Löschen</button>
+                                    </form>
                                 </td>
                             </tr>
                             

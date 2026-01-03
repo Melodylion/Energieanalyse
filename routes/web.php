@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QuizController;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\QuizManagerController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -10,72 +13,50 @@ use Illuminate\Support\Facades\Artisan;
 |--------------------------------------------------------------------------
 */
 
+// --- 1. QUIZ (PUBLIC) ---
+
+// Dynamic Quiz Routes (Slug-based)
+Route::get('/quiz/{slug}', [QuizController::class, 'index'])->name('quiz.show');
+Route::post('/quiz/{slug}/submit', [QuizController::class, 'submit'])->name('quiz.submit');
+
+// Default Route (Homepage - Fallback to 'energieanalyse')
 Route::get('/', [QuizController::class, 'index'])->name('quiz.index');
-Route::post('/submit', [QuizController::class, 'submit'])->name('quiz.submit');
+
+// Results & PDF
 Route::get('/analyse-ergebnis', [QuizController::class, 'showEmailForm'])->name('quiz.email');
 Route::post('/download-pdf', [QuizController::class, 'generatePDF'])->name('quiz.download');
 
-// TEMPORARY MIGRATION ROUTE
-Route::get('/setup-migration', function() {
-    try {
-        Artisan::call('migrate --force');
-        return 'Migration done: ' . Artisan::output();
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
 
-Route::get('/reset-db', function() {
-    try {
-        Artisan::call('migrate:fresh --force');
-        return 'DATABASE RESET DONE! <br>' . Artisan::output();
-    } catch (\Exception $e) {
-        return 'Error: ' . $e->getMessage();
-    }
-});
+// --- 2. AUTHENTICATION ---
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
-Route::get('/admin/leads', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.index');
-
-
-// --- DEBUG HELPERS ---
-
-// 1. Clear Cache (Essential after .env changes)
-Route::get('/clear-all-caches', function() {
-    try {
-        Artisan::call('config:clear');
-        Artisan::call('cache:clear');
-        Artisan::call('view:clear');
-        Artisan::call('route:clear');
-        return 'All Caches cleared! <br>Config, Cache, View, Route. <br><a href="/">Back to App</a>';
-    } catch (\Exception $e) {
-        return 'Error clearing cache: ' . $e->getMessage();
-    }
-});
-
-// 2. Test Session (To see if cookies work)
-Route::get('/debug-session', function() {
-    session(['test_time' => date('Y-m-d H:i:s')]);
-    return 'Session value set at ' . date('H:i:s') . '. <br><a href="/debug-session-check">Click to verify Session</a>';
-});
-
-Route::get('/debug-session-check', function() {
-    if (session()->has('test_time')) {
-        return 'SUCCESS: Session works! Value: ' . session('test_time');
-    }
-    return 'ERROR: Session is empty. Cookies or permissions issue.';
-});
-
-// 3. Better Log Viewer
-Route::get('/debug-log', function() {
-    $path = storage_path('logs/laravel.log');
-    if (!file_exists($path)) {
-        return 'Log file not found at: ' . $path;
-    }
-    $content = file_get_contents($path);
-    $lines = explode("\n", $content);
-    // Get last 100 lines and REVERSE them (newest top)
-    $lastLines = array_reverse(array_slice($lines, -100));
+// --- 3. PROTECTED ADMIN AREA ---
+Route::middleware('auth')->group(function () {
     
-    return '<h1>Last 100 Log Entries (Newest First)</h1><pre>' . implode("\n", $lastLines) . '</pre>';
+    // Dashboard & Actions
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::delete('/admin/respondents/{respondent}', [AdminController::class, 'destroy'])->name('admin.respondents.destroy');
+    
+    // Legacy Redirect
+    Route::get('/admin/leads', function() { return redirect()->route('admin.dashboard'); });
+
+    // CMS / Quiz Manager
+    Route::resource('admin/quizzes', QuizManagerController::class, ['as' => 'admin']);
+    
+    // User Management (Admins)
+    Route::resource('admin/users', \App\Http\Controllers\UserController::class, ['as' => 'admin']);
+
+    // Categories Manager (Nested)
+    Route::post('/admin/quizzes/{quiz}/categories', [App\Http\Controllers\CategoryController::class, 'store'])->name('admin.categories.store');
+    Route::put('/admin/categories/{category}', [App\Http\Controllers\CategoryController::class, 'update'])->name('admin.categories.update');
+    Route::delete('/admin/categories/{category}', [App\Http\Controllers\CategoryController::class, 'destroy'])->name('admin.categories.destroy');
+
+    // Admin Tools
+    Route::get('/admin/clear-cache', function() {
+        Artisan::call('optimize:clear');
+        return 'Cache cleared! <a href="' . route('admin.dashboard') . '">Back to Dashboard</a>';
+    })->name('admin.clear-cache');
 });
