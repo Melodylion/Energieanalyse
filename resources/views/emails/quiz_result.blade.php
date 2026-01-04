@@ -7,16 +7,10 @@
     </style>
 </head>
 <body>
-    <p>Hallo,</p>
-    
-    <p>Vielen Dank, dass du dir die Zeit genommen hast, den Nervensystem-Kompass auszufüllen.</p>
-    
-    <p>Anbei erhältst du deine persönliche Auswertung als PDF.</p>
-    
-    <p>Solltest du Fragen haben, melde dich gerne bei mir.</p>
-    
-    <p>Herzliche Grüße,<br>
-    Sophie Philipp</p>
+        <!-- Main Body Text -->
+        <div style="color: #4a5568; line-height: 1.6; margin-bottom: 30px;">
+            {!! $body !!}
+        </div>
     
     <div class="footer">
         <p>Sophie Philipp<br>

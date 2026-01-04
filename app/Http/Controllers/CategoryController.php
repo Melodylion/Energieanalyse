@@ -14,6 +14,8 @@ class CategoryController extends Controller
             'label' => 'required|string|max:255',
             'key' => 'required|string|max:255|alpha_dash', // e.g. 'loslassen'
             'description' => 'nullable|string',
+            'description_positive' => 'nullable|string',
+            'description_negative' => 'nullable|string',
             'impulse_text' => 'nullable|string',
         ]);
 
@@ -28,6 +30,8 @@ class CategoryController extends Controller
             'label' => 'required|string|max:255',
             'key' => 'required|string|max:255|alpha_dash',
             'description' => 'nullable|string',
+            'description_positive' => 'nullable|string',
+            'description_negative' => 'nullable|string',
             'impulse_text' => 'nullable|string',
         ]);
 

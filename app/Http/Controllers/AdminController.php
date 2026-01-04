@@ -23,6 +23,17 @@ class AdminController extends Controller
     public function destroy(Respondent $respondent)
     {
         $respondent->delete();
-        return back()->with('success', 'Datensatz gelöscht.');
+        return back()->with('success', 'Eintrag gelöscht.');
+    }
+
+    public function runMigrate()
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            $output = \Illuminate\Support\Facades\Artisan::output();
+            return back()->with('success', 'Datenbank Update erfolgreich! Log: <br>' . nl2br($output));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Fehler beim Update: ' . $e->getMessage());
+        }
     }
 }

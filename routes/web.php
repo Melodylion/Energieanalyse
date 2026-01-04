@@ -46,6 +46,11 @@ Route::middleware('auth')->group(function () {
     // CMS / Quiz Manager
     Route::resource('admin/quizzes', QuizManagerController::class, ['as' => 'admin']);
     
+    // Import / Export
+    Route::get('admin/quizzes/{quiz}/export', [App\Http\Controllers\ImportExportController::class, 'export'])->name('admin.export');
+    Route::get('admin/import', [App\Http\Controllers\ImportExportController::class, 'showImportForm'])->name('admin.import.form');
+    Route::post('admin/import', [App\Http\Controllers\ImportExportController::class, 'import'])->name('admin.import.process');
+
     // User Management (Admins)
     Route::resource('admin/users', \App\Http\Controllers\UserController::class, ['as' => 'admin']);
 
@@ -55,6 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/admin/categories/{category}', [App\Http\Controllers\CategoryController::class, 'destroy'])->name('admin.categories.destroy');
 
     // Admin Tools
+    Route::get('/admin/migrate', [AdminController::class, 'runMigrate'])->name('admin.migrate'); // Dangerous but useful
     Route::get('/admin/clear-cache', function() {
         Artisan::call('optimize:clear');
         return 'Cache cleared! <a href="' . route('admin.dashboard') . '">Back to Dashboard</a>';

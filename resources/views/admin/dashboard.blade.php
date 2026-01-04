@@ -4,19 +4,36 @@
 <div class="max-w-7xl mx-auto px-4 py-8">
     <h1 class="text-3xl font-serif text-anthracite mb-8">Admin Dashboard</h1>
 
-    <!-- Actions Toolbar -->
-    <div class="mb-8 flex justify-between items-center">
-        <div class="flex gap-4">
-            <a href="{{ route('admin.quizzes.index') }}" class="bg-anthracite text-white px-6 py-2 rounded-lg hover:bg-gold transition-colors text-sm uppercase tracking-widest">
-                CMS / Quiz
-            </a>
-            <a href="{{ route('admin.users.index') }}" class="bg-white border border-gray-300 text-anthracite px-4 py-2 rounded-lg hover:border-gold hover:text-gold transition-colors text-sm uppercase tracking-widest">
-                Admins
-            </a>
-            <a href="{{ route('admin.clear-cache') }}" class="bg-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-red-100 transition-colors text-xs font-bold uppercase tracking-wide flex items-center">
-                Cache Leeren
-            </a>
+    <!-- System Tools & Navigation -->
+    <div class="mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- System Tools Box -->
+        <div class="bg-indigo-50 p-6 rounded-lg border border-indigo-100 flex flex-col justify-center items-center text-center">
+            <h3 class="font-bold text-indigo-900 mb-2 uppercase text-xs tracking-widest">System Wartung</h3>
+            <p class="text-xs text-indigo-700 mb-4 px-4">Cache leeren und Datenbank aktualisieren.</p>
+            <div class="flex gap-2">
+                <a href="{{ route('admin.clear-cache') }}" class="bg-white text-indigo-600 px-4 py-2 rounded-full border border-indigo-200 text-xs font-bold hover:bg-indigo-600 hover:text-white transition-colors">Cache Leeren</a>
+                <a href="{{ route('admin.migrate') }}" onclick="return confirm('Datenbank aktualisieren? Das führt neue Änderungen (Migrationen) durch.')" class="bg-indigo-600 text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-indigo-800 transition-colors">DB-Update</a>
+            </div>
         </div>
+
+        <!-- Quiz Manager Link -->
+        <a href="{{ route('admin.quizzes.index') }}" class="block bg-gold p-6 rounded-lg shadow-md hover:bg-anthracite transition-colors group">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-white font-serif text-xl group-hover:text-gold transition-colors">Quiz Management</h3>
+                <span class="text-white text-2xl group-hover:text-gold">&rarr;</span>
+            </div>
+            <p class="text-white text-opacity-80 text-sm">Fragen, Texte und Kategorien verwalten.</p>
+        </a>
+
+        <!-- User Manager Link -->
+        <a href="{{ route('admin.users.index') }}" class="block bg-white border border-gray-200 p-6 rounded-lg shadow-sm hover:border-gold transition-colors group">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-anthracite font-serif text-xl group-hover:text-gold transition-colors">Administratoren</h3>
+                <span class="text-gray-400 text-2xl group-hover:text-gold">&rarr;</span>
+            </div>
+            <p class="text-gray-500 text-sm">Admin-Zugänge verwalten.</p>
+        </a>
+    </div>
         @if(session('success'))
             <div class="bg-green-100 text-green-800 px-4 py-2 rounded text-sm font-bold animate-pulse">
                 {{ session('success') }}

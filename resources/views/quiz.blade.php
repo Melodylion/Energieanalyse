@@ -10,6 +10,23 @@
     </div>
 
     <form @submit.prevent="submitQuiz">
+        <!-- INTRO SLIDE -->
+        <div x-show="currentStep === -1" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform translate-x-4"
+             x-transition:enter-end="opacity-100 transform translate-x-0"
+             class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 min-h-[400px] flex flex-col justify-center text-center">
+            
+            <h2 class="font-serif text-3xl text-anthracite mb-8">{{ $quiz->title }}</h2>
+            <div class="prose prose-gold mx-auto mb-12 text-gray-600">
+                {!! nl2br(e($quiz->intro_text)) !!}
+            </div>
+
+            <button type="button" @click="start()" class="bg-anthracite text-white px-12 py-4 rounded-full hover:bg-gold transition-colors duration-300 text-sm tracking-widest uppercase font-bold shadow-lg transform hover:scale-105 mx-auto">
+                Loslegen
+            </button>
+        </div>
+
         <template x-for="(q, index) in questions" :key="index">
             <div x-show="currentStep === index" 
                  x-transition:enter="transition ease-out duration-300"
@@ -19,6 +36,8 @@
                 
                 <p class="text-xs text-gold font-bold tracking-widest uppercase mb-4" x-text="'Frage ' + (index + 1) + ' von ' + questions.length"></p>
                 <h2 class="font-serif text-2xl md:text-3xl text-anthracite mb-12 leading-relaxed" x-text="q.text"></h2>
+                
+                <!-- ... existing content ... -->
 
                 <div class="mb-8 px-4">
                     <div class="flex justify-between text-xs text-gray-400 mb-2 uppercase tracking-widest font-bold">
@@ -51,12 +70,17 @@
 <script>
     function quiz() {
         return {
-            currentStep: 0,
+            // If intro text exists, start at -1 (Intro Slide). Else 0 (First Question).
+            currentStep: {{ !empty($quiz->intro_text) ? -1 : 0 }},
             // Injected from Controller
             questions: @json($jsQuestions),
             
             // Dynamic Answer Array based on Question Count
             answers: Array({{ count($jsQuestions) }}).fill(5), 
+
+            start() {
+                this.currentStep = 0;
+            }, 
             
             get progress() {
                 return ((this.currentStep + 1) / this.questions.length) * 100;

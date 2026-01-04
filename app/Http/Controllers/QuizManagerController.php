@@ -25,7 +25,13 @@ class QuizManagerController extends Controller
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:quizzes',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
+            'intro_text' => 'nullable|string',
+            'analysis_title' => 'nullable|string',
+            'analysis_text' => 'nullable|string',
+            'analysis_graph_text' => 'nullable|string',
+            'analysis_report_text' => 'nullable|string',
+            'report_title' => 'nullable|string',
         ]);
 
         $quiz = Quiz::create($data);
@@ -47,12 +53,21 @@ class QuizManagerController extends Controller
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:quizzes,slug,'.$quiz->id,
             'description' => 'nullable|string',
+            'intro_text' => 'nullable|string',
+            'analysis_title' => 'nullable|string',
+            'analysis_text' => 'nullable|string',
+            'analysis_graph_text' => 'nullable|string',
+            'analysis_report_text' => 'nullable|string',
+            'report_title' => 'nullable|string',
+            'pdf_page2_title' => 'nullable|string',
+            'pdf_page2_text' => 'nullable|string',
+            'email_body' => 'nullable|string',
+            'email_subject' => 'nullable|string',
             'active' => 'boolean'
         ]));
 
         // 2. Questions & Matrix
         // Expecting input: questions[existing_id][text], questions[existing_id][weights][cat_id]
-        // And new_questions[]...
         
         $questionsInput = $request->input('questions', []);
         
@@ -61,14 +76,11 @@ class QuizManagerController extends Controller
             $question = Question::find($qId);
             if ($question && $question->quiz_id == $quiz->id) {
                 // Update Text
-                if (isset($qData['text'])) {
-                    $question->update(['text' => $qData['text']]);
-                }
+                if (isset($qData['text'])) $question->update(['text' => $qData['text']]);
                 
                 // Update Weights
                 if (isset($qData['weights'])) {
                     foreach ($qData['weights'] as $catId => $weight) {
-                        // Sync without detaching others
                         $question->categories()->syncWithoutDetaching([
                              $catId => ['weight' => (int)$weight]
                         ]);
@@ -76,9 +88,7 @@ class QuizManagerController extends Controller
                 }
                 
                 // Delete?
-                if (isset($qData['delete']) && $qData['delete'] == '1') {
-                    $question->delete();
-                }
+                if (isset($qData['delete']) && $qData['delete'] == '1') $question->delete();
             }
         }
 
@@ -88,7 +98,7 @@ class QuizManagerController extends Controller
                 if (!empty($newQ['text'])) {
                     $q = $quiz->questions()->create([
                         'text' => $newQ['text'],
-                        'order' => 999 // Add logic for order later
+                        'order' => 999 
                     ]);
                     
                     // Add weights for new question
@@ -97,6 +107,43 @@ class QuizManagerController extends Controller
                             $q->categories()->attach($catId, ['weight' => (int)$weight]);
                         }
                     }
+                }
+            }
+        }
+        
+        // 3. BULK CATEGORY UPDATES
+        $categoriesInput = $request->input('categories', []);
+        
+        foreach ($categoriesInput as $catId => $catData) {
+            $category = Category::find($catId);
+            if ($category && $category->quiz_id == $quiz->id) {
+                // Delete?
+                if (isset($catData['delete']) && $catData['delete'] == '1') {
+                    $category->delete();
+                    continue; 
+                }
+
+                // Update Fields
+                $category->update([
+                    'label' => $catData['label'],
+                    'key' => $catData['key'],
+                    'description_positive' => $catData['description_positive'] ?? null,
+                    'description_negative' => $catData['description_negative'] ?? null,
+                    'description' => $catData['description'] ?? null,
+                ]);
+            }
+        }
+
+        // Create New Categories
+        if ($request->has('new_categories')) {
+            foreach ($request->input('new_categories') as $newCat) {
+                if (!empty($newCat['label'])) {
+                    $quiz->categories()->create([
+                        'label' => $newCat['label'],
+                        'key' => $newCat['key'] ?? \Illuminate\Support\Str::slug($newCat['label']),
+                        'description_positive' => $newCat['description_positive'] ?? null,
+                        'description_negative' => $newCat['description_negative'] ?? null,
+                    ]);
                 }
             }
         }

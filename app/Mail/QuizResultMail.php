@@ -12,28 +12,21 @@ class QuizResultMail extends Mailable
     use Queueable, SerializesModels;
 
     public $pdfContent;
-    public $respondentName;
+    public $emailSubject;
+    public $emailBody;
 
-    /**
-     * Create a new message instance.
-     *
-     * @param string $pdfContent The raw PDF content content
-     * @param string $respondentName Name of respondent (optional)
-     */
-    public function __construct($pdfContent)
+    public function __construct($pdfContent, $emailSubject, $emailBody)
     {
         $this->pdfContent = $pdfContent;
+        $this->emailSubject = $emailSubject;
+        $this->emailBody = $emailBody;
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
     public function build()
     {
-        return $this->subject('Dein persönliches Nervensystem-Profil')
+        return $this->subject($this->emailSubject)
                     ->view('emails.quiz_result')
+                    ->with(['body' => $this->emailBody])
                     ->attachData($this->pdfContent, 'nervensystem-kompass.pdf', [
                         'mime' => 'application/pdf',
                     ]);

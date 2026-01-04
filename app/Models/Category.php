@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Category extends Model
 {
-    protected $guarded = [];
+    protected $fillable = ['quiz_id', 'label', 'key', 'description', 'description_positive', 'description_negative', 'impulse_text'];
 
     public function quiz(): BelongsTo
     {
